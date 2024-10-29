@@ -7,214 +7,147 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, viewport-fit=cover"
     />
-    <meta name="Description" content="Demonstration for mvp-search" />
+    <meta name="Description" content="Demonstration for MVP-search" />
 
-    <style>
-      :root,
-      html,
-      body {
-        margin: 0;
-        padding: 0;
-      }
-      #demo {
-        margin: var(--ddd-spacing-2);
-      }
-      mvp-search {
-        margin: var(--ddd-spacing-2);
-        border: var(--ddd-border-md);
-        border-radius: var(--ddd-radius-lg);
-      }
-      mvp-search:hover {
-        box-shadow: var(--ddd-boxShadow-sm);
-      }
-      #example {
-        --mvp-search-font-size: var(--ddd-font-size-l);
-        background-color: var(--ddd-accent-2);
-        color: var(--ddd-primary-17);
-      }
-    </style>
-    <title>mvp-search</title>
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Site Analyzer</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+          }
+          .container {
+            max-width: 800px;
+            margin: 0 auto;
+          }
+          .overview {
+            border: 1px solid #ccc;
+            padding: 20px;
+            margin-bottom: 20px;
+          }
+          .cards {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+          }
+          .card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            flex: 1 1 calc(25% - 20px);
+            box-sizing: border-box;
+            cursor: pointer;
+          }
+          .card img {
+            max-width: 100%;
+            height: auto;
+          }
+          .card:hover {
+            background-color: #f9f9f9;
+          }
+          @media (max-width: 600px) {
+            .card {
+              flex: 1 1 100%;
+            }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <h1>Site Analyzer</h1>
+          <div>
+            <label for="site-url">HAX Site URL:</label>
+            <input
+              type="text"
+              id="site-url"
+              placeholder="https://hax.theweb.org/site.json"
+            />
+            <button onclick="fetchData()">Analyze</button>
+          </div>
+
+          <div id="overview" class="overview"></div>
+
+          <div id="cards" class="cards"></div>
+        </div>
+
+        <script>
+          async function fetchData() {
+            const urlInput = document.getElementById("site-url").value;
+            if (!urlInput) {
+              alert("Please enter a URL.");
+              return;
+            }
+
+            let url = urlInput.endsWith("site.json")
+              ? urlInput
+              : `${urlInput}/site.json`;
+
+            try {
+              const response = await fetch(url);
+              if (!response.ok)
+                throw new Error("Invalid URL or file not found");
+              const data = await response.json();
+
+              if (!data.items || !data.metadata)
+                throw new Error("Invalid JSON schema");
+
+              displayOverview(data.metadata);
+              displayCards(data.items);
+            } catch (error) {
+              alert("Error fetching data: " + error.message);
+            }
+          }
+
+          function displayOverview(metadata) {
+            const overview = document.getElementById("overview");
+            overview.innerHTML = `
+              <h2>${metadata.name || "N/A"}</h2>
+              <p><strong>Description:</strong> ${
+                metadata.description || "N/A"
+              }</p>
+              <p><strong>Theme:</strong> ${metadata.theme || "N/A"}</p>
+              <p><strong>Created:</strong> ${metadata.created || "N/A"}</p>
+              <p><strong>Last Updated:</strong> ${
+                metadata.lastUpdated || "N/A"
+              }</p>
+              <img src="${
+                metadata.logo
+              }" alt="Site Logo" style="max-width: 100px;">
+          `;
+          }
+
+          function displayCards(items) {
+            const cardsContainer = document.getElementById("cards");
+            cardsContainer.innerHTML = ""; // Clear previous cards
+
+            items.forEach((item) => {
+              const card = document.createElement("div");
+              card.className = "card";
+              card.innerHTML = `
+                  <img src="${
+                    item.image || "placeholder.jpg"
+                  }" alt="Page Image">
+                  <h3>${item.title || "Untitled"}</h3>
+                  <p><strong>Last Updated:</strong> ${
+                    item.lastUpdated || "N/A"
+                  }</p>
+                  <p>${item.description || "No description available"}</p>
+                  <button onclick="window.open('${
+                    item.link
+                  }', '_blank')">Open Content</button>
+                  <button onclick="window.open('${
+                    item.source
+                  }', '_blank')">Open Source</button>
+              `;
+              cardsContainer.appendChild(card);
+            });
+          }
+        </script>
+      </body>
+    </html>
   </head>
-
-  <body>
-    <div id="demo">
-      <h1>mvp-search</h1>
-      <!-- this is going to do whatever the tag's defaults are -->
-      <h2>Default</h2>
-      <mvp-search></mvp-search>
-      <h2>Slot usage</h2>
-      <mvp-search data-accent="2" data-primary="17"
-        ><div>Sample slot content</div></mvp-search
-      >
-      <h2>Property usage</h2>
-      <mvp-search id="example" title="Sample property title"></mvp-search>
-    </div>
-    <script type="module" src="./mvp-search.js"></script>
-
-    <!-- Take HAX, the Web and you further down the rabbit hole -->
-    <style>
-      #follow-the-white-rabbit {
-        margin: var(--ddd-spacing-4) auto 64px 16px;
-        background-color: var(--ddd-accent-4);
-        color: black;
-      }
-      #follow-the-white-rabbit[open] summary {
-        background-color: var(--ddd-accent-4) !important;
-        color: black;
-      }
-      #follow-the-white-rabbit[open] .content {
-        padding: 0 var(--ddd-spacing-4);
-      }
-      #follow-the-white-rabbit ul,
-      #follow-the-white-rabbit li {
-        padding: 0;
-        margin: 0;
-      }
-      #follow-the-white-rabbit li {
-        font-size: var(--ddd-font-size-xs);
-        list-style: none;
-      }
-      #follow-the-white-rabbit li strong,
-      #follow-the-white-rabbit li a {
-        padding: var(--ddd-spacing-2) var(--ddd-spacing-4);
-        color: black;
-        display: block;
-        font-weight: bold;
-      }
-      #follow-the-white-rabbit li:focus-within a,
-      #follow-the-white-rabbit li:hover a {
-        background-color: black;
-        color: yellow;
-      }
-    </style>
-    <details id="follow-the-white-rabbit" open>
-      <summary>How to Develop</summary>
-      <div class="content">
-        <p>
-          <strong>Checkout project on github:</strong>
-          <a
-            href="https://github.com/syd18b/mvp-searchq"
-            target="_blank"
-            rel="nofollow"
-            >syd18b/mvp-search</a
-          >
-        </p>
-        <p>
-          You can edit the current page by modifying <code>index.html</code
-          ><br />
-          To edit your <strong>mvp-search</strong> tag, modify
-          <code>src/mvp-search.js</code>. This file contains all the HTML, CSS
-          and JavaScript used to render your elements above!
-        </p>
-        <p>
-          Web components are easy to follow once you get used to their pattern.
-          Below are links to help on your journey. Good luck, we need you!
-        </p>
-        <ul>
-          <li>
-            <a href="https://haxtheweb.org/documentation/ddd" target="_blank"
-              >🧑‍🎨 Learn DDD HAX Design system</a
-            >
-          </li>
-          <li>
-            <a href="https://lit.dev/playground/" target="_blank" rel="nofollow"
-              >🔥 Learn Lit</a
-            >
-          </li>
-          <li>
-            <a href="https://hax.psu.edu" target="_blank"
-              >🧙 HAX The Web @ Penn State</a
-            >
-          </li>
-        </ul>
-        <h2>Join and Share HAX</h2>
-        <ul>
-          <li>
-            <a
-              href="https://github.com/haxtheweb/issues/issues"
-              target="_blank"
-              rel="nofollow"
-              >🔮 Ideas to HAX Harder, Better, Faster, Stronger</a
-            >
-          </li>
-          <li>
-            <a
-              href="https://bit.ly/hax-the-linkedin"
-              target="_blank"
-              rel="nofollow"
-              >👔 Share on LinkedIn</a
-            >
-          </li>
-          <li>
-            <a href="https://bit.ly/hax-the-x" target="_blank" rel="nofollow"
-              >🧵 Tweet on X</a
-            >
-          </li>
-          <li>
-            <a href="https://bit.ly/hax-discord" target="_blank" rel="nofollow"
-              >💬 Join Community</a
-            >
-          </li>
-        </ul>
-        <h2>Learn the languages and tools</h2>
-        <ul>
-          <li>
-            <a href="https://w3schools.com" target="_blank" rel="nofollow"
-              >🌐 Learn HTML</a
-            >
-          </li>
-          <li>
-            <a href="https://web.dev/learn/css/" target="_blank" rel="nofollow"
-              >🎨 Learn CSS</a
-            >
-          </li>
-          <li>
-            <a href="http://Javascript.info" target="_blank" rel="nofollow"
-              >💻 Learn JavaScript (JS)</a
-            >
-          </li>
-          <li>
-            <a href="https://gitimmersion.com" target="_blank" rel="nofollow"
-              >🦺 Learn Git / Github</a
-            >
-          </li>
-          <li>
-            <a
-              href="https://nodesource.com/blog/an-absolute-beginners-guide-to-using-npm/"
-              target="_blank"
-              rel="nofollow"
-              >📦 Learn NPM</a
-            >
-          </li>
-          <li>
-            <a href="http://learnux.io" target="_blank" rel="nofollow"
-              >📐 Learn UX / UI development</a
-            >
-          </li>
-        </ul>
-        <h2>Find purpose and inspiration</h2>
-        <ul>
-          <li>
-            <a
-              href="https://www.youtube.com/watch?v=eC7xzavzEKY"
-              target="_blank"
-              rel="nofollow"
-              >🐟 This is Water - David Foster Wallace</a
-            >
-          </li>
-          <li>
-            <a
-              href="https://www.youtube.com/watch?v=kYfNvmF0Bqw"
-              target="_blank"
-              rel="nofollow"
-              >🏗️ Secrets of Life - Steve Jobs</a
-            >
-          </li>
-          <li>
-            <strong>💡 <em>Never. Stop. Innovating.</em></strong>
-          </li>
-        </ul>
-      </div>
-    </details>
-  </body>
 </html>
