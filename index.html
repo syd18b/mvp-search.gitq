@@ -57,26 +57,12 @@
         </style>
       </head>
       <body>
-        <div class="container">
-          <h1>Site Analyzer</h1>
-          <div>
-            <label for="site-url">HAX Site URL:</label>
-            <input
-              type="text"
-              id="site-url"
-              placeholder="https://hax.theweb.org/site.json"
-            />
-            <button onclick="fetchData()">Analyze</button>
-          </div>
-
-          <div id="overview" class="overview"></div>
-
-          <div id="cards" class="cards"></div>
-        </div>
-
+        <mvp-search></mvp-search>
+        <mvp-itemn></mvp-search>
+        <script type="module" src="mvp-search.js"></script>
+        <script type="module" src="mvp-item.js"></script>
         <script>
           async function fetchData() {
-            const urlInput = document.getElementById("site-url").value;
             if (!urlInput) {
               alert("Please enter a URL.");
               return;
@@ -127,22 +113,7 @@
             items.forEach((item) => {
               const card = document.createElement("div");
               card.className = "card";
-              card.innerHTML = `
-                  <img src="${
-                    item.image || "placeholder.jpg"
-                  }" alt="Page Image">
-                  <h3>${item.title || "Untitled"}</h3>
-                  <p><strong>Last Updated:</strong> ${
-                    item.lastUpdated || "N/A"
-                  }</p>
-                  <p>${item.description || "No description available"}</p>
-                  <button onclick="window.open('${
-                    item.link
-                  }', '_blank')">Open Content</button>
-                  <button onclick="window.open('${
-                    item.source
-                  }', '_blank')">Open Source</button>
-              `;
+
               cardsContainer.appendChild(card);
             });
           }
