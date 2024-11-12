@@ -24,6 +24,13 @@ export class mvpSearch extends DDDSuper(I18NMixin(LitElement)) {
     this.title = "";
     this.value = "";
     this.overview = {};
+    this.name = "";
+    this.description = "";
+    this.logo = "";
+    this.theme = "";
+    this.created = "";
+    this.lastupdated = "";
+    this.hexCode = "";
   }
 
   // Lit reactive properties
@@ -34,6 +41,13 @@ export class mvpSearch extends DDDSuper(I18NMixin(LitElement)) {
       value: { type: String },
       items: { type: Array },
       overview: { type: Object },
+      name: { type: String },
+      description: { type: String },
+      logo: { type: String },
+      theme: { type: String },
+      created: { type: String },
+      lastupdated: { type: String },
+      hexCode: { type: String },
     };
   }
 
@@ -81,6 +95,13 @@ export class mvpSearch extends DDDSuper(I18NMixin(LitElement)) {
       .then((d) => (d.ok ? d.json() : {}))
       .then((data) => {
         if (data) {
+          this.name = data.metadata.site.name;
+          this.description = data.desctipiton;
+          this.logo = data.metadata.site.logo;
+          this.theme = data.metadata.site.theme;
+          this.created = data.metadata.site.created;
+          this.lastupdated = data.metadata.site.updated;
+          this.hexCode = data.metadata.theme.variables.hexcode;
           this.items = data.items;
           this.loading = false;
         } else {
@@ -88,7 +109,10 @@ export class mvpSearch extends DDDSuper(I18NMixin(LitElement)) {
         }
       });
   }
-
+  dateToString(timeStamp) {
+    const date = new Date(timeStamp * 1000);
+    return date.toUTCString();
+  }
   // Lit render the HTML
   render() {
     return html`
@@ -104,17 +128,37 @@ export class mvpSearch extends DDDSuper(I18NMixin(LitElement)) {
           <button @click="${this.updateResults}">Analyze</button>
         </div>
 
-        <div id="overview" class="overview"></div>
+        <!-- Overview card, initially hidden -->
+        <div class="overview-card" id="overview-card" style="display: none;">
+          <h2 id="name">name:</h2>
+          <p id="description">description:</p>
+
+          <div class="logo">
+            logo:
+            <img id="logo" src="" />
+          </div>
+
+          <p id="theme">theme: <span id="theme"></span></p>
+
+          <p class="created">created: <span id="created"></span></p>
+          <p class="last-updated">
+            lastupdated: <span id="lastupdated"></span>
+          </p>
+
+          <p class="hex-code">Hex Code: <span id="hexcode"></span></p>
+
+          <!-- Simple Icon -->
+          <div id="simple-icon"></div>
+        </div>
 
         <div id="cards" class="cards">
-          <div id="overview"></div>
           ${this.items.map(
-            (item, index) => html`
+            (item) => html`
               <mvp-item
                 title=${item.title}
-                lastUpdated=${item.metadata.updated}
+                lastUpdated=${this.dateToString(item.metadata.updated)}
                 description=${item.description}
-                image=https://haxtheweb.org/${item.metadata.images[0]}
+                image=${item.metadata.images[0]}
                 slug=https://haxtheweb.org/${item.slug}
                 path=https://haxtheweb.org/${item.location}
                 addtional=${item.metadata.published}
