@@ -66,8 +66,41 @@ export class mvpSearch extends DDDSuper(I18NMixin(LitElement)) {
           margin: var(--ddd-spacing-2);
           padding: var(--ddd-spacing-4);
         }
-        h3 span {
-          font-size: var(--mvp-search-label-font-size, var(--ddd-font-size-s));
+        h2 {
+          font-size: var(--mvp-search-label-font-size, var(--ddd-font-size-xs));
+          margin: 0;
+        }
+
+        .overview-card {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          background-color: var(--site-hex-code, #f9f9f9);
+          border-radius: 12px;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          padding: 20px;
+          margin: 0 auto 20px auto;
+          max-width: 600px; /* Limit width of the card */
+          text-align: center;
+        }
+
+        #logo {
+          max-height: 150px;
+          max-width: 150px;
+          margin-bottom: 15px;
+          border-radius: 50%;
+          object-fit: cover;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .text-wrap {
+          text-align: left;
+        }
+
+        .cards {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 16px;
         }
       `,
     ];
@@ -96,12 +129,12 @@ export class mvpSearch extends DDDSuper(I18NMixin(LitElement)) {
       .then((data) => {
         if (data) {
           this.name = data.metadata.site.name;
-          this.description = data.desctipiton;
+          this.description = data.description;
           this.logo = data.metadata.site.logo;
-          this.theme = data.metadata.site.theme;
+          this.theme = data.metadata.theme.name;
           this.created = data.metadata.site.created;
           this.lastupdated = data.metadata.site.updated;
-          this.hexCode = data.metadata.theme.variables.hexcode;
+          this.hexCode = data.metadata.theme.variables.hexCode;
           this.items = data.items;
           this.loading = false;
         } else {
@@ -109,10 +142,12 @@ export class mvpSearch extends DDDSuper(I18NMixin(LitElement)) {
         }
       });
   }
+
   dateToString(timeStamp) {
     const date = new Date(timeStamp * 1000);
     return date.toUTCString();
   }
+
   // Lit render the HTML
   render() {
     return html`
@@ -128,27 +163,40 @@ export class mvpSearch extends DDDSuper(I18NMixin(LitElement)) {
           <button @click="${this.updateResults}">Analyze</button>
         </div>
 
-        <!-- Overview card, initially hidden -->
-        <div class="overview-card" id="overview-card" style="display: none;">
-          <h2 id="name">name:</h2>
-          <p id="description">description:</p>
+        <div
+          class="overview-card"
+          id="overview-card"
+          style="--site-hex-code: ${this.hexCode};"
+        >
+          <h2 class="logo">logo:</h2>
+          ${this.logo
+            ? html`<img id="logo" src="https://haxtheweb.org/${this.logo}" />`
+            : ""}
 
-          <div class="logo">
-            logo:
-            <img id="logo" src="" />
+          <div class="text-wrap">
+            <h2 id="name">name:</h2>
+            ${this.name ? html`<div>${this.name}</div>` : ""}
+
+            <h2 id="description">description:</h2>
+            ${this.description ? html`<div>${this.description}</div>` : ""}
+            ${this.theme
+              ? html`<h2 id="theme">theme:</h2>
+                  <div>${this.theme}</div>`
+              : ""}
+
+            <h2 class="created">created:</h2>
+            ${this.created
+              ? html`<div>${this.dateToString(this.created)}</div>`
+              : ""}
+
+            <h2 class="last-updated">last updated:</h2>
+            ${this.lastupdated
+              ? html`<div>${this.dateToString(this.lastupdated)}</div>`
+              : ""}
+
+            <h2 class="hex-code">Hex Code:</h2>
+            ${this.hexCode ? html`<div>${this.hexCode}</div>` : ""}
           </div>
-
-          <p id="theme">theme: <span id="theme"></span></p>
-
-          <p class="created">created: <span id="created"></span></p>
-          <p class="last-updated">
-            lastupdated: <span id="lastupdated"></span>
-          </p>
-
-          <p class="hex-code">Hex Code: <span id="hexcode"></span></p>
-
-          <!-- Simple Icon -->
-          <div id="simple-icon"></div>
         </div>
 
         <div id="cards" class="cards">

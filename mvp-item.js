@@ -21,6 +21,7 @@ export class mvpItem extends DDDSuper(I18NMixin(LitElement)) {
     super();
     this.title = "";
     this.lastUpdated = "";
+    this.created = "";
     this.description = "";
     this.image = "";
     this.slug = "";
